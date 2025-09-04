@@ -1,27 +1,32 @@
 import axios from "axios";
-import { getToken } from "./auth.js";
+import { fetchAuthToken } from "./auth.js";
 
-const LOG_API = "http://20.244.56.144/evaluation-service/logs";
+const LOG_ENDPOINT = "http://20.244.56.144/evaluation-service/logs";
 
-export async function Log(stack, level, pkg, message) {
+export async function sendLog(stack, level, pkg, msg) {
   try {
-    const token = await getToken();
+    const token = await fetchAuthToken();
     if (!token) {
-      console.error("⚠ Cannot log, missing token");
-      return;
+      console.error("Missing token, cannot log");
+      return null;
     }
-    const payload = {
+
+    const data = {
       stack,
       level,
       package: pkg,
-      message,
+      message: msg,
       timestamp: new Date().toISOString(),
     };
-    const res = await axios.post(LOG_API, payload, {
+
+    const response = await axios.post(LOG_ENDPOINT, data, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    console.log("✅ Log sent:", res.data);
-  } catch (err) {
-    console.error("⚠ Logging failed:", err.response?.data || err.message);
+
+    console.log("Log sent:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Logging failed:", error?.response?.data || error.message);
+    return null;
   }
 }
