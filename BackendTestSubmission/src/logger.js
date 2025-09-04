@@ -5,14 +5,11 @@ const LOG_API = "http://20.244.56.144/evaluation-service/logs";
 
 export async function Log(stack, level, pkg, message) {
   try {
-    const token = (await getToken())?.trim();
-
-    // Offline testing mode
+    const token = await getToken();
     if (!token) {
-      console.log(`[${stack}] [${level}] [${pkg}] ${message}`);
+      console.error("⚠ Cannot log, missing token");
       return;
     }
-
     const payload = {
       stack,
       level,
@@ -20,13 +17,11 @@ export async function Log(stack, level, pkg, message) {
       message,
       timestamp: new Date().toISOString(),
     };
-
     const res = await axios.post(LOG_API, payload, {
       headers: { Authorization: `Bearer ${token}` },
     });
-
     console.log("✅ Log sent:", res.data);
   } catch (err) {
-    console.error("⚠️ Logging failed:", err.response?.data || err.message);
+    console.error("⚠ Logging failed:", err.response?.data || err.message);
   }
 }

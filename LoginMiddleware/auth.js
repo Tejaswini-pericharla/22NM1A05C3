@@ -1,11 +1,11 @@
 import axios from "axios";
 
-let token = null; // store token after first fetch
+let cachedToken = null;
+const AUTH_URL = "http://20.244.56.144/evaluation-service/auth";
 
 export async function getToken() {
-  if (token) return token; // reuse existing token
-
-  try {
+  if (cachedToken) return cachedToken;
+    try {
     const res = await axios.post("http://20.244.56.144/evaluation-service/auth", {
       email: "22nm1a05c3@view.edu.in",
       name: "tejaswini",
@@ -14,10 +14,9 @@ export async function getToken() {
       clientID: "17ac6087-67c9-41c2-ae36-f8424981ce12",
       clientSecret: "dVCPwxwzHVkmwuvA"
     });
-
-    token = res.data.access_token;
-    console.log("✅ Got new token");
-    return token;
+    cachedToken = res.data.access_token;
+    console.log("✅ Token fetched successfully");
+    return cachedToken;
   } catch (err) {
     console.error(
       "❌ Failed to fetch token:",
